@@ -1,0 +1,47 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+/auth.json
+
+# Dependencies
+/node_modules
+/vendor
+
+# Build artifacts
+/public/build
+/public/hot
+/public/storage
+/bootstrap/cache/*.php
+
+# Runtime and local app data
+/database/*.sqlite
+/storage/*.key
+/storage/pail
+/tmp
+
+# Test and tooling caches
+.phpactor.json
+.phpunit.result.cache
+/.phpunit.cache
+_ide_helper.php
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+/.fleet
+/.idea
+/.nova
+/.vscode
+/.zed
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local VM config
+Homestead.json
+Homestead.yaml
