@@ -2,20 +2,20 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Invoice;
+use App\Models\Quotation;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class InvoiceRequest extends FormRequest
+class QuotationRequest extends FormRequest
 {
     public function authorize(): bool
     {
         return auth()->check();
     }
 
-    public function usesAutomaticInvoiceNumber(): bool
+    public function usesAutomaticQuotationNumber(): bool
     {
-        return $this->route('invoice') === null && $this->input('invoice_number_mode') === 'auto';
+        return $this->route('quotation') === null && $this->input('quotation_number_mode') === 'auto';
     }
 
     protected function prepareForValidation(): void
@@ -33,7 +33,7 @@ class InvoiceRequest extends FormRequest
             ->all();
 
         $this->merge([
-            'due_date' => $this->input('due_date') ?: null,
+            'valid_until' => $this->input('valid_until') ?: null,
             'customer_email' => $this->input('customer_email') ?: null,
             'customer_phone' => $this->input('customer_phone') ?: null,
             'customer_address' => $this->input('customer_address') ?: null,
@@ -47,26 +47,26 @@ class InvoiceRequest extends FormRequest
      */
     public function rules(): array
     {
-        /** @var Invoice|null $invoice */
-        $invoice = $this->route('invoice');
+        /** @var Quotation|null $quotation */
+        $quotation = $this->route('quotation');
         $businessProfileId = $this->user()?->business_profile_id;
-        $invoiceNumberRules = ['required', 'string', 'max:50'];
+        $quotationNumberRules = ['required', 'string', 'max:50'];
 
-        if (! $this->usesAutomaticInvoiceNumber()) {
-            $invoiceNumberRules[] = Rule::unique('invoices', 'invoice_number')
+        if (! $this->usesAutomaticQuotationNumber()) {
+            $quotationNumberRules[] = Rule::unique('quotations', 'quotation_number')
                 ->where(fn ($query) => $query->where('business_profile_id', $businessProfileId))
-                ->ignore($invoice?->id);
+                ->ignore($quotation?->id);
         }
 
         return [
-            'invoice_number_mode' => ['sometimes', Rule::in(['auto', 'manual'])],
-            'invoice_number' => $invoiceNumberRules,
+            'quotation_number_mode' => ['sometimes', Rule::in(['auto', 'manual'])],
+            'quotation_number' => $quotationNumberRules,
             'customer_name' => ['required', 'string', 'max:255'],
             'customer_email' => ['nullable', 'email', 'max:255'],
             'customer_phone' => ['nullable', 'string', 'max:50'],
             'customer_address' => ['nullable', 'string', 'max:1000'],
             'issue_date' => ['required', 'date'],
-            'due_date' => ['nullable', 'date', 'after_or_equal:issue_date'],
+            'valid_until' => ['nullable', 'date', 'after_or_equal:issue_date'],
             'notes' => ['nullable', 'string', 'max:2000'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.description' => ['required', 'string', 'max:255'],

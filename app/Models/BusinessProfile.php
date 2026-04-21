@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class BusinessProfile extends Model
 {
@@ -31,6 +32,7 @@ class BusinessProfile extends Model
         'logo_path',
         'signature_path',
         'setup_completed_at',
+        'team_invite_code',
     ];
 
     /**
@@ -66,14 +68,33 @@ class BusinessProfile extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function members(): HasMany
+    {
+        return $this->hasMany(User::class);
+    }
+
     public function invoices(): HasMany
     {
         return $this->hasMany(Invoice::class);
     }
 
+    public function quotations(): HasMany
+    {
+        return $this->hasMany(Quotation::class);
+    }
+
     public function receipts(): HasMany
     {
         return $this->hasMany(Receipt::class);
+    }
+
+    public static function generateUniqueTeamInviteCode(): string
+    {
+        do {
+            $code = 'TEAM-'.Str::upper(Str::random(8));
+        } while (static::query()->where('team_invite_code', $code)->exists());
+
+        return $code;
     }
 
     public function completionPercentage(): int

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureBusinessProfileIsComplete;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'profile.complete' => \App\Http\Middleware\EnsureBusinessProfileIsComplete::class,
+            'profile.complete' => EnsureBusinessProfileIsComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

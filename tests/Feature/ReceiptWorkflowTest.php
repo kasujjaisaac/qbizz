@@ -98,11 +98,37 @@ class ReceiptWorkflowTest extends TestCase
         $this->assertSame(0.0, (float) $latestReceipt->balance_after);
     }
 
+    public function test_stale_receipt_create_forms_get_the_next_available_number_in_auto_mode(): void
+    {
+        $user = $this->createReadyUser();
+        $payload = [
+            'receipt_number_mode' => 'auto',
+            'receipt_source' => 'standalone',
+            'receipt_number' => 'RCP-2026-0001',
+            'payer_name' => 'Walk-in Customer',
+            'amount_received' => 75000,
+            'payment_date' => now()->toDateString(),
+            'payment_method' => 'Cash',
+        ];
+
+        $this->actingAs($user)->post(route('receipts.store'), $payload)->assertRedirect();
+        $this->actingAs($user)->post(route('receipts.store'), $payload)->assertRedirect();
+
+        $this->assertDatabaseHas('receipts', [
+            'user_id' => $user->id,
+            'receipt_number' => 'RCP-2026-0001',
+        ]);
+        $this->assertDatabaseHas('receipts', [
+            'user_id' => $user->id,
+            'receipt_number' => 'RCP-2026-0002',
+        ]);
+    }
+
     protected function createReadyUser(): User
     {
         $user = User::factory()->create();
 
-        BusinessProfile::create([
+        $businessProfile = BusinessProfile::create([
             'user_id' => $user->id,
             'business_name' => 'Developers Roots Foundation',
             'contact_email' => 'hello@example.com',
@@ -116,12 +142,17 @@ class ReceiptWorkflowTest extends TestCase
             'setup_completed_at' => now(),
         ]);
 
+        $user->forceFill([
+            'business_profile_id' => $businessProfile->id,
+        ])->save();
+
         return $user;
     }
 
     protected function createInvoiceFor(User $user): Invoice
     {
-        return $user->invoices()->create([
+        return Invoice::create([
+            'user_id' => $user->id,
             'business_profile_id' => $user->businessProfile->id,
             'invoice_number' => 'INV-2026-0001',
             'customer_name' => 'Acme Client',

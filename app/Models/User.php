@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -21,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'business_profile_id',
         'is_admin',
     ];
 
@@ -44,17 +46,42 @@ class User extends Authenticatable
         ];
     }
 
-    public function businessProfile(): HasOne
+    public function businessProfile(): BelongsTo
+    {
+        return $this->belongsTo(BusinessProfile::class);
+    }
+
+    public function ownedBusinessProfile(): HasOne
     {
         return $this->hasOne(BusinessProfile::class);
     }
 
     public function invoices(): HasMany
     {
+        return $this->hasMany(Invoice::class, 'business_profile_id', 'business_profile_id');
+    }
+
+    public function createdInvoices(): HasMany
+    {
         return $this->hasMany(Invoice::class);
     }
 
+    public function quotations(): HasMany
+    {
+        return $this->hasMany(Quotation::class, 'business_profile_id', 'business_profile_id');
+    }
+
+    public function createdQuotations(): HasMany
+    {
+        return $this->hasMany(Quotation::class);
+    }
+
     public function receipts(): HasMany
+    {
+        return $this->hasMany(Receipt::class, 'business_profile_id', 'business_profile_id');
+    }
+
+    public function createdReceipts(): HasMany
     {
         return $this->hasMany(Receipt::class);
     }

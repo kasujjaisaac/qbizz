@@ -1,8 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <p class="text-sm font-medium text-slate-500">Invoices</p>
-            <h1 class="text-2xl font-semibold text-slate-950">Settled Invoices</h1>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-slate-500">Invoices</p>
+                <h1 class="text-2xl font-semibold text-slate-950">Settled Invoices</h1>
+            </div>
+
+            <a href="{{ route('invoices.create') }}" class="inline-flex w-full items-center justify-center rounded-none border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto">
+                Create invoice
+            </a>
         </div>
     </x-slot>
 
@@ -31,7 +37,10 @@
 
             @if ($settledInvoices->isEmpty())
                 <div class="px-4 py-8 text-sm text-slate-500 sm:px-6 sm:py-10">
-                    No invoices have been marked as settled yet.
+                    <p>No invoices have been marked as settled yet.</p>
+                    <a href="{{ route('invoices.create') }}" class="mt-4 inline-flex items-center justify-center rounded-none border border-slate-900 bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                        Create invoice
+                    </a>
                 </div>
             @else
                 <div class="divide-y divide-slate-100 md:hidden">

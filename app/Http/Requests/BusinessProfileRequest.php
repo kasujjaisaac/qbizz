@@ -32,6 +32,7 @@ class BusinessProfileRequest extends FormRequest
             'logo' => ['nullable', 'image', 'max:2048'],
             'signature_data' => ['nullable', 'string'],
             'clear_signature' => ['nullable', 'boolean'],
+            'regenerate_team_invite_code' => ['nullable', 'boolean'],
         ];
     }
 }

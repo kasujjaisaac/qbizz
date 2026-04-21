@@ -235,6 +235,23 @@
                                 @endif
                             </div>
 
+                            <div class="space-y-2">
+                                <label for="register_invite_code" class="auth-label">Team invite code</label>
+                                <input
+                                    id="register_invite_code"
+                                    type="text"
+                                    name="invite_code"
+                                    value="{{ old('auth_mode') === 'register' ? old('invite_code') : '' }}"
+                                    autocomplete="off"
+                                    placeholder="Optional: join an existing company"
+                                    class="auth-input"
+                                >
+                                <p class="text-xs leading-5 text-slate-500">Leave this blank to create your own company workspace after signup.</p>
+                                @if ($currentTab === 'register')
+                                    <x-input-error :messages="$errors->get('invite_code')" class="mt-2" />
+                                @endif
+                            </div>
+
                             <div class="grid gap-4">
                                 <div class="space-y-2">
                                     <label for="register_password" class="auth-label">Password</label>

@@ -14,6 +14,11 @@ class ReceiptRequest extends FormRequest
         return auth()->check();
     }
 
+    public function usesAutomaticReceiptNumber(): bool
+    {
+        return $this->route('receipt') === null && $this->input('receipt_number_mode') === 'auto';
+    }
+
     protected function prepareForValidation(): void
     {
         $this->merge([
@@ -33,15 +38,24 @@ class ReceiptRequest extends FormRequest
      */
     public function rules(): array
     {
+        $businessProfileId = $this->user()?->business_profile_id;
+        $receiptNumberRules = ['required', 'string', 'max:50'];
+
+        if (! $this->usesAutomaticReceiptNumber()) {
+            $receiptNumberRules[] = Rule::unique('receipts', 'receipt_number')
+                ->where(fn ($query) => $query->where('business_profile_id', $businessProfileId));
+        }
+
         return [
+            'receipt_number_mode' => ['sometimes', Rule::in(['auto', 'manual'])],
             'receipt_source' => ['required', Rule::in(['invoice', 'standalone'])],
-            'receipt_number' => ['required', 'string', 'max:50', Rule::unique('receipts', 'receipt_number')],
+            'receipt_number' => $receiptNumberRules,
             'invoice_id' => [
                 'nullable',
                 Rule::requiredIf(fn (): bool => $this->input('receipt_source') === 'invoice'),
                 'integer',
                 Rule::exists('invoices', 'id')->where(function ($query) {
-                    $query->where('user_id', $this->user()?->id)
+                    $query->where('business_profile_id', $this->user()?->business_profile_id)
                         ->whereIn('status', [Invoice::STATUS_ACTIVE, Invoice::STATUS_PARTIAL]);
                 }),
             ],

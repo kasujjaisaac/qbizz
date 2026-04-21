@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\InvoiceRequest;
+use App\Models\BusinessProfile;
 use App\Models\Invoice;
-use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -49,9 +49,11 @@ class InvoiceController extends Controller
 
     public function create(Request $request): View
     {
+        $businessProfile = $request->user()->businessProfile;
+
         return view('invoices.create', [
             'invoice' => new Invoice([
-                'invoice_number' => $this->nextInvoiceNumber($request->user()),
+                'invoice_number' => $businessProfile ? $this->nextInvoiceNumber($businessProfile) : '',
                 'issue_date' => now()->toDateString(),
                 'due_date' => now()->addDays(14)->toDateString(),
             ]),
@@ -62,13 +64,18 @@ class InvoiceController extends Controller
     {
         $invoice = DB::transaction(function () use ($request): Invoice {
             $user = $request->user();
+            $businessProfile = $this->lockBusinessProfileForUpdate($user);
             $payload = $request->validated();
             $items = $payload['items'];
             unset($payload['items']);
+            $payload['invoice_number'] = $request->usesAutomaticInvoiceNumber()
+                ? $this->nextInvoiceNumber($businessProfile)
+                : (string) $payload['invoice_number'];
 
-            $invoice = $user->invoices()->create([
+            $invoice = Invoice::create([
                 ...$payload,
-                'business_profile_id' => $user->businessProfile->id,
+                'user_id' => $user->id,
+                'business_profile_id' => $businessProfile->id,
                 'status' => Invoice::STATUS_ACTIVE,
                 'total_amount' => $this->calculateTotal($items),
             ]);
@@ -198,14 +205,14 @@ class InvoiceController extends Controller
         );
     }
 
-    protected function nextInvoiceNumber(User $user): string
+    protected function nextInvoiceNumber(BusinessProfile $businessProfile): string
     {
-        $latestInvoiceNumber = $user->invoices()->latest('id')->value('invoice_number');
+        $latestInvoiceNumber = $businessProfile->invoices()->latest('id')->value('invoice_number');
 
         if ($latestInvoiceNumber && preg_match('/(\d+)$/', $latestInvoiceNumber, $matches) === 1) {
             $nextNumber = ((int) $matches[1]) + 1;
         } else {
-            $nextNumber = $user->invoices()->count() + 1;
+            $nextNumber = $businessProfile->invoices()->count() + 1;
         }
 
         return sprintf('INV-%s-%04d', now()->format('Y'), $nextNumber);
@@ -213,6 +220,6 @@ class InvoiceController extends Controller
 
     protected function ensureOwnership(Request $request, Invoice $invoice): void
     {
-        abort_unless($invoice->user_id === $request->user()->id, 403);
+        abort_unless($invoice->business_profile_id === $request->user()->business_profile_id, 403);
     }
 }

@@ -1,8 +1,19 @@
 <x-app-layout>
     <x-slot name="header">
-        <div>
-            <p class="text-sm font-medium text-slate-500">Business overview</p>
-            <h1 class="text-2xl font-semibold text-slate-950">Dashboard</h1>
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm font-medium text-slate-500">Business overview</p>
+                <h1 class="text-2xl font-semibold text-slate-950">Dashboard</h1>
+            </div>
+
+            <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+                <a href="{{ route('quotations.create') }}" class="inline-flex w-full items-center justify-center rounded-none border border-amber-600 bg-amber-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-500 sm:w-auto">
+                    Create quotation
+                </a>
+                <a href="{{ route('invoices.create') }}" class="inline-flex w-full items-center justify-center rounded-none border border-slate-900 bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto">
+                    Create invoice
+                </a>
+            </div>
         </div>
     </x-slot>
 
@@ -34,6 +45,18 @@
                     <p class="mt-2 text-lg font-semibold leading-tight text-slate-950 sm:text-xl xl:text-2xl">{{ $activeInvoiceCount }}</p>
                 </article>
 
+                <article class="relative min-w-0 flex-1 overflow-hidden border border-orange-200 bg-orange-50 p-4 pl-5 shadow-sm">
+                    <span class="absolute inset-y-0 left-0 w-1.5 bg-orange-500"></span>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-orange-700">Pending Quotations</p>
+                    <p class="mt-2 text-lg font-semibold leading-tight text-slate-950 sm:text-xl xl:text-2xl">{{ $pendingQuotationCount }}</p>
+                </article>
+
+                <article class="relative min-w-0 flex-1 overflow-hidden border border-lime-200 bg-lime-50 p-4 pl-5 shadow-sm">
+                    <span class="absolute inset-y-0 left-0 w-1.5 bg-lime-500"></span>
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-lime-700">Accepted Quotations</p>
+                    <p class="mt-2 text-lg font-semibold leading-tight text-slate-950 sm:text-xl xl:text-2xl">{{ $acceptedQuotationCount }}</p>
+                </article>
+
                 <article class="relative min-w-0 flex-1 overflow-hidden border border-teal-200 bg-teal-50 p-4 pl-5 shadow-sm">
                     <span class="absolute inset-y-0 left-0 w-1.5 bg-teal-500"></span>
                     <p class="text-[11px] font-semibold uppercase tracking-[0.24em] text-teal-700">Settled Invoices</p>
@@ -58,12 +81,21 @@
                             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Recent Invoices</p>
                             <h2 class="mt-2 text-xl font-semibold text-slate-950">Latest activity</h2>
                         </div>
-                        <a href="{{ route('invoices.index') }}" class="text-sm font-semibold text-sky-700 transition hover:text-sky-900">View all</a>
+
+                        <div class="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+                            <a href="{{ route('invoices.create') }}" class="inline-flex w-full items-center justify-center rounded-none border border-slate-900 bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto">
+                                Create invoice
+                            </a>
+                            <a href="{{ route('invoices.index') }}" class="text-sm font-semibold text-sky-700 transition hover:text-sky-900">View all</a>
+                        </div>
                     </div>
 
                     @if ($recentInvoices->isEmpty())
                         <div class="px-4 py-8 text-sm text-slate-500 sm:px-6 sm:py-10">
-                            No invoices yet. Create your first invoice to start tracking revenue and payments.
+                            <p>No invoices yet. Create your first invoice to start tracking revenue and payments.</p>
+                            <a href="{{ route('invoices.create') }}" class="mt-4 inline-flex items-center justify-center rounded-none border border-slate-900 bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+                                Create invoice
+                            </a>
                         </div>
                     @else
                         <div class="divide-y divide-slate-100 md:hidden">
@@ -173,6 +205,18 @@
                     <span class="absolute inset-y-0 left-0 w-1.5 bg-teal-500"></span>
                     <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Quick actions</p>
                     <div class="mt-5 space-y-3">
+                        <a href="{{ route('quotations.create') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-amber-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-amber-600 hover:bg-slate-50">
+                            <span>Create a quotation</span>
+                            <span class="text-slate-400">+</span>
+                        </a>
+                        <a href="{{ route('quotations.index') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-orange-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-orange-600 hover:bg-slate-50">
+                            <span>Review quotations</span>
+                            <span class="text-slate-400">{{ $quotationCount }}</span>
+                        </a>
+                        <a href="{{ route('invoices.create') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-sky-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-sky-600 hover:bg-slate-50">
+                            <span>Create an invoice</span>
+                            <span class="text-slate-400">+</span>
+                        </a>
                         <a href="{{ route('receipts.create') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-fuchsia-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-fuchsia-600 hover:bg-slate-50">
                             <span>Issue a receipt</span>
                             <span class="text-slate-400">+</span>

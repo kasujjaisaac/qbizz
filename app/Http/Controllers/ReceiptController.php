@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ReceiptRequest;
+use App\Models\BusinessProfile;
 use App\Models\Invoice;
 use App\Models\Receipt;
-use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,7 +45,7 @@ class ReceiptController extends Controller
 
         return view('receipts.create', [
             'receipt' => new Receipt([
-                'receipt_number' => $this->nextReceiptNumber($user),
+                'receipt_number' => $user->businessProfile ? $this->nextReceiptNumber($user->businessProfile) : '',
                 'payment_date' => now()->toDateString(),
             ]),
             'openInvoices' => $user->invoices()
@@ -62,13 +62,16 @@ class ReceiptController extends Controller
     {
         $receipt = DB::transaction(function () use ($request): Receipt {
             $user = $request->user();
+            $businessProfile = $this->lockBusinessProfileForUpdate($user);
             $payload = $request->validated();
-            $businessProfile = $user->businessProfile;
             $amountReceived = round((float) $payload['amount_received'], 2);
+            $payload['receipt_number'] = $request->usesAutomaticReceiptNumber()
+                ? $this->nextReceiptNumber($businessProfile)
+                : (string) $payload['receipt_number'];
 
             if ($payload['receipt_source'] === 'invoice') {
                 /** @var Invoice $invoice */
-                $invoice = $user->invoices()
+                $invoice = $businessProfile->invoices()
                     ->open()
                     ->lockForUpdate()
                     ->findOrFail((int) $payload['invoice_id']);
@@ -83,7 +86,8 @@ class ReceiptController extends Controller
 
                 $balanceAfter = max(round($balanceBefore - $amountReceived, 2), 0);
 
-                $receipt = $user->receipts()->create([
+                $receipt = Receipt::create([
+                    'user_id' => $user->id,
                     'business_profile_id' => $businessProfile->id,
                     'invoice_id' => $invoice->id,
                     'receipt_number' => $payload['receipt_number'],
@@ -107,7 +111,8 @@ class ReceiptController extends Controller
                 return $receipt;
             }
 
-            return $user->receipts()->create([
+            return Receipt::create([
+                'user_id' => $user->id,
                 'business_profile_id' => $businessProfile->id,
                 'receipt_number' => $payload['receipt_number'],
                 'payer_name' => $payload['payer_name'],
@@ -150,14 +155,14 @@ class ReceiptController extends Controller
         ]);
     }
 
-    protected function nextReceiptNumber(User $user): string
+    protected function nextReceiptNumber(BusinessProfile $businessProfile): string
     {
-        $latestReceiptNumber = $user->receipts()->latest('id')->value('receipt_number');
+        $latestReceiptNumber = $businessProfile->receipts()->latest('id')->value('receipt_number');
 
         if ($latestReceiptNumber && preg_match('/(\d+)$/', $latestReceiptNumber, $matches) === 1) {
             $nextNumber = ((int) $matches[1]) + 1;
         } else {
-            $nextNumber = $user->receipts()->count() + 1;
+            $nextNumber = $businessProfile->receipts()->count() + 1;
         }
 
         return sprintf('RCP-%s-%04d', now()->format('Y'), $nextNumber);
@@ -188,6 +193,6 @@ class ReceiptController extends Controller
 
     protected function ensureOwnership(Request $request, Receipt $receipt): void
     {
-        abort_unless($receipt->user_id === $request->user()->id, 403);
+        abort_unless($receipt->business_profile_id === $request->user()->business_profile_id, 403);
     }
 }

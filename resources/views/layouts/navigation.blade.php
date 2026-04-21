@@ -51,8 +51,21 @@
         </a>
 
         <a
-            href="{{ route('invoices.index') }}"
-            class="{{ request()->routeIs('invoices.index') || request()->routeIs('invoices.create') || request()->routeIs('invoices.edit') || request()->routeIs('invoices.show') ? 'border-sky-400/40 bg-sky-400/10 text-white' : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white' }} flex items-center gap-3 border px-4 py-3 font-medium transition"
+            href="{{ route('quotations.create') }}"
+            class="{{ request()->routeIs('quotations.create') ? 'border-amber-300 bg-amber-500 text-white' : 'border-transparent text-slate-300 hover:border-amber-300/40 hover:bg-white/5 hover:text-white' }} flex items-center gap-3 border px-4 py-3 font-medium transition"
+        >
+            <span class="inline-flex h-9 w-9 items-center justify-center border border-current/15">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75h9A2.25 2.25 0 0 1 18.75 6v12A2.25 2.25 0 0 1 16.5 20.25h-9A2.25 2.25 0 0 1 5.25 18V6A2.25 2.25 0 0 1 7.5 3.75Z" />
+                </svg>
+            </span>
+            Create Quotation
+        </a>
+
+        <a
+            href="{{ route('quotations.index') }}"
+            class="{{ request()->routeIs('quotations.index') || request()->routeIs('quotations.edit') || request()->routeIs('quotations.show') ? 'border-amber-300/40 bg-amber-500/10 text-white' : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white' }} flex items-center gap-3 border px-4 py-3 font-medium transition"
         >
             <span class="inline-flex h-9 w-9 items-center justify-center border border-current/15">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -60,7 +73,33 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9.75h7.5M8.25 13.5h7.5M8.25 17.25h4.5" />
                 </svg>
             </span>
-            Open Invoices
+            Quotations
+        </a>
+
+        <a
+            href="{{ route('invoices.create') }}"
+            class="{{ request()->routeIs('invoices.create') ? 'border-sky-400 bg-sky-500 text-white' : 'border-transparent text-slate-300 hover:border-sky-400/40 hover:bg-white/5 hover:text-white' }} flex items-center gap-3 border px-4 py-3 font-medium transition"
+        >
+            <span class="inline-flex h-9 w-9 items-center justify-center border border-current/15">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75h9A2.25 2.25 0 0 1 18.75 6v12A2.25 2.25 0 0 1 16.5 20.25h-9A2.25 2.25 0 0 1 5.25 18V6A2.25 2.25 0 0 1 7.5 3.75Z" />
+                </svg>
+            </span>
+            Create Invoice
+        </a>
+
+        <a
+            href="{{ route('invoices.index') }}"
+            class="{{ request()->routeIs('invoices.index') || request()->routeIs('invoices.edit') || request()->routeIs('invoices.show') ? 'border-sky-400/40 bg-sky-400/10 text-white' : 'border-transparent text-slate-300 hover:border-white/10 hover:bg-white/5 hover:text-white' }} flex items-center gap-3 border px-4 py-3 font-medium transition"
+        >
+            <span class="inline-flex h-9 w-9 items-center justify-center border border-current/15">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75h7.379a2.25 2.25 0 0 1 1.59.659l2.122 2.121a2.25 2.25 0 0 1 .659 1.591V19.5A2.25 2.25 0 0 1 17 21.75H7.5A2.25 2.25 0 0 1 5.25 19.5V6A2.25 2.25 0 0 1 7.5 3.75Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9.75h7.5M8.25 13.5h7.5M8.25 17.25h4.5" />
+                </svg>
+            </span>
+            Invoices
         </a>
 
         <a

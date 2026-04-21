@@ -42,6 +42,41 @@
                     <p>Complete these details once and the system will reuse them across every document you issue.</p>
                 </div>
             </div>
+
+            <div class="border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+                <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Team workspace</p>
+                @if ($businessProfile->exists)
+                    <h2 class="mt-3 text-lg font-semibold text-slate-950">Invite teammates into this company</h2>
+                    <p class="mt-2 text-sm leading-7 text-slate-600">
+                        New staff accounts can join this business during signup with the invite code below. Everyone in the workspace shares the same quotations, invoices, and receipts.
+                    </p>
+
+                    <div class="mt-5 border border-slate-200 bg-slate-50 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Invite code</p>
+                        <p class="mt-2 break-all text-xl font-semibold tracking-[0.12em] text-slate-950">{{ $businessProfile->team_invite_code }}</p>
+                    </div>
+
+                    <div class="mt-5">
+                        <p class="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Current team</p>
+                        <div class="mt-3 space-y-3 text-sm text-slate-600">
+                            @foreach ($teamMembers as $member)
+                                <div class="border border-slate-200 px-4 py-3">
+                                    <p class="font-semibold text-slate-900">{{ $member->name }}</p>
+                                    <p class="mt-1">{{ $member->email }}</p>
+                                    @if ($member->id === $businessProfile->user_id)
+                                        <p class="mt-2 text-xs font-semibold uppercase tracking-[0.24em] text-sky-700">Workspace owner</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <h2 class="mt-3 text-lg font-semibold text-slate-950">Create the company first</h2>
+                    <p class="mt-2 text-sm leading-7 text-slate-600">
+                        Save the business profile once and Qbizz will generate an invite code you can share with teammates at signup.
+                    </p>
+                @endif
+            </div>
         </aside>
 
         <section class="order-1 border border-slate-200 bg-white p-4 shadow-sm sm:p-8 xl:order-2">

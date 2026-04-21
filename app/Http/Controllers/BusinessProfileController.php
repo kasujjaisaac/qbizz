@@ -6,6 +6,7 @@ use App\Http\Requests\BusinessProfileRequest;
 use App\Models\BusinessProfile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -23,43 +24,69 @@ class BusinessProfileController extends Controller
             'completionPercentage' => $businessProfile->completionPercentage(),
             'missingFields' => $businessProfile->missingFields(),
             'requiredFieldLabels' => BusinessProfile::requiredFieldLabels(),
+            'teamMembers' => $businessProfile->exists
+                ? $businessProfile->members()->orderBy('name')->get()
+                : collect([$user]),
         ]);
     }
 
     public function update(BusinessProfileRequest $request): RedirectResponse
     {
         $user = $request->user();
-        $businessProfile = $user->businessProfile ?? new BusinessProfile();
         $data = $request->validated();
         $signatureData = $data['signature_data'] ?? null;
         $clearSignature = (bool) ($data['clear_signature'] ?? false);
-        unset($data['signature_data'], $data['clear_signature']);
+        $regenerateTeamInviteCode = (bool) ($data['regenerate_team_invite_code'] ?? false);
+        unset($data['signature_data'], $data['clear_signature'], $data['regenerate_team_invite_code']);
 
-        if ($request->hasFile('logo')) {
-            if ($businessProfile->logo_path) {
-                Storage::disk('public')->delete($businessProfile->logo_path);
+        $businessProfile = DB::transaction(function () use ($request, $user, $data, $signatureData, $clearSignature, $regenerateTeamInviteCode): BusinessProfile {
+            $businessProfile = $user->businessProfile ?? new BusinessProfile([
+                'contact_email' => $user->email,
+                'team_invite_code' => BusinessProfile::generateUniqueTeamInviteCode(),
+            ]);
+
+            if ($request->hasFile('logo')) {
+                if ($businessProfile->logo_path) {
+                    Storage::disk('public')->delete($businessProfile->logo_path);
+                }
+
+                $data['logo_path'] = $request->file('logo')->store('business-logos', 'public');
             }
 
-            $data['logo_path'] = $request->file('logo')->store('business-logos', 'public');
-        }
-
-        if ($clearSignature && $businessProfile->signature_path) {
-            Storage::disk('public')->delete($businessProfile->signature_path);
-            $data['signature_path'] = null;
-        }
-
-        if (filled($signatureData)) {
-            if ($businessProfile->signature_path) {
+            if ($clearSignature && $businessProfile->signature_path) {
                 Storage::disk('public')->delete($businessProfile->signature_path);
+                $data['signature_path'] = null;
             }
 
-            $data['signature_path'] = $this->storeSignature($signatureData);
-        }
+            if (filled($signatureData)) {
+                if ($businessProfile->signature_path) {
+                    Storage::disk('public')->delete($businessProfile->signature_path);
+                }
 
-        $businessProfile->fill($data);
-        $businessProfile->user()->associate($user);
-        $businessProfile->setup_completed_at = $businessProfile->completionPercentage() === 100 ? now() : null;
-        $businessProfile->save();
+                $data['signature_path'] = $this->storeSignature($signatureData);
+            }
+
+            if ($regenerateTeamInviteCode || blank($businessProfile->team_invite_code)) {
+                $data['team_invite_code'] = BusinessProfile::generateUniqueTeamInviteCode();
+            }
+
+            $businessProfile->fill($data);
+
+            if (! $businessProfile->exists) {
+                $businessProfile->user()->associate($user);
+            }
+
+            $businessProfile->setup_completed_at = $businessProfile->completionPercentage() === 100 ? now() : null;
+            $businessProfile->save();
+
+            if ($user->business_profile_id !== $businessProfile->id) {
+                $user->forceFill([
+                    'business_profile_id' => $businessProfile->id,
+                ])->save();
+            }
+
+            return $businessProfile;
+        });
 
         return redirect()
             ->route($businessProfile->isComplete() ? 'dashboard' : 'business-profile.edit')

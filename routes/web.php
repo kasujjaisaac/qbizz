@@ -3,8 +3,9 @@
 use App\Http\Controllers\BusinessProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
-use App\Http\Controllers\ReceiptController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\ReceiptController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,6 +20,18 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('profile.complete')->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/quotations', [QuotationController::class, 'index'])->name('quotations.index');
+        Route::get('/quotations/create', [QuotationController::class, 'create'])->name('quotations.create');
+        Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
+        Route::get('/quotations/{quotation}', [QuotationController::class, 'show'])->name('quotations.show');
+        Route::get('/quotations/{quotation}/edit', [QuotationController::class, 'edit'])->name('quotations.edit');
+        Route::put('/quotations/{quotation}', [QuotationController::class, 'update'])->name('quotations.update');
+        Route::patch('/quotations/{quotation}/send', [QuotationController::class, 'send'])->name('quotations.send');
+        Route::patch('/quotations/{quotation}/accept', [QuotationController::class, 'accept'])->name('quotations.accept');
+        Route::patch('/quotations/{quotation}/reject', [QuotationController::class, 'reject'])->name('quotations.reject');
+        Route::post('/quotations/{quotation}/convert', [QuotationController::class, 'convert'])->name('quotations.convert');
+        Route::get('/quotations/{quotation}/print', [QuotationController::class, 'print'])->name('quotations.print');
 
         Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
         Route::get('/invoices/settled', [InvoiceController::class, 'settled'])->name('invoices.settled');

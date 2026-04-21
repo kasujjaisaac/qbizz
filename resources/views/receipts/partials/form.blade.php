@@ -1,6 +1,8 @@
 @php
     $selectedSource = old('receipt_source', $selectedInvoice ? 'invoice' : 'standalone');
     $selectedInvoiceId = old('invoice_id', $selectedInvoice?->id);
+    $receiptNumberValue = old('receipt_number', $receipt->receipt_number);
+    $receiptNumberMode = old('receipt_number_mode', 'auto');
     $receiptDateValue = old('payment_date', $receipt->payment_date instanceof \Carbon\CarbonInterface ? $receipt->payment_date->toDateString() : $receipt->payment_date);
     $defaultAmount = old('amount_received', $selectedInvoice ? number_format($selectedInvoice->balanceDue(), 2, '.', '') : '');
     $invoiceOptions = $openInvoices->map(fn ($invoice) => [
@@ -17,6 +19,8 @@
 
 <div
     x-data="{
+        receiptNumberMode: @js($receiptNumberMode),
+        defaultReceiptNumber: @js((string) $receipt->receipt_number),
         source: @js($selectedSource),
         selectedInvoiceId: @js($selectedInvoiceId ? (string) $selectedInvoiceId : ''),
         amountReceived: @js((string) $defaultAmount),
@@ -41,6 +45,9 @@
 
             return Math.max(Number(invoice.balance_due) - amount, 0);
         },
+        syncReceiptNumberMode(value) {
+            this.receiptNumberMode = value === this.defaultReceiptNumber ? 'auto' : 'manual';
+        },
     }"
     class="space-y-8"
 >
@@ -60,7 +67,9 @@
             <div class="grid gap-6 sm:grid-cols-2">
                 <div>
                     <label for="receipt_number" class="block text-sm font-semibold text-slate-900">Receipt number</label>
-                    <input id="receipt_number" name="receipt_number" type="text" value="{{ old('receipt_number', $receipt->receipt_number) }}" class="mt-2 block w-full rounded-none border-slate-300 text-sm shadow-sm focus:border-sky-600 focus:ring-sky-600" required>
+                    <input type="hidden" name="receipt_number_mode" x-model="receiptNumberMode">
+                    <input id="receipt_number" name="receipt_number" type="text" value="{{ $receiptNumberValue }}" @input="syncReceiptNumberMode($event.target.value)" class="mt-2 block w-full rounded-none border-slate-300 text-sm shadow-sm focus:border-sky-600 focus:ring-sky-600" required>
+                    <p class="mt-2 text-xs leading-5 text-slate-500">Leave the suggested number unchanged and the final receipt number will be assigned safely when you save. Type your own number if you want to override it.</p>
                 </div>
 
                 <div>
