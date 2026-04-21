@@ -157,49 +157,6 @@
             </div>
 
             <div class="space-y-6">
-                <div class="relative overflow-hidden border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-                    <span class="absolute inset-y-0 left-0 w-1.5 bg-amber-500"></span>
-                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Business details</p>
-                    <h2 class="mt-3 text-xl font-semibold text-slate-950">Invoice identity</h2>
-                    <dl class="mt-5 space-y-4 text-sm text-slate-600">
-                        <div>
-                            <dt class="font-semibold text-slate-900">Contact email</dt>
-                            <dd class="mt-1">{{ $businessProfile->contact_email }}</dd>
-                        </div>
-                        <div>
-                            <dt class="font-semibold text-slate-900">Telephone</dt>
-                            <dd class="mt-1">{{ $businessProfile->phone }}</dd>
-                        </div>
-                        <div>
-                            <dt class="font-semibold text-slate-900">Business address</dt>
-                            <dd class="mt-1 whitespace-pre-line">{{ $businessProfile->formattedAddress() }}</dd>
-                        </div>
-                    </dl>
-                </div>
-
-                <div class="relative overflow-hidden border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
-                    <span class="absolute inset-y-0 left-0 w-1.5 bg-fuchsia-500"></span>
-                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-slate-500">Receipt overview</p>
-                    <h2 class="mt-3 text-xl font-semibold text-slate-950">Collections</h2>
-                    <dl class="mt-5 space-y-4 text-sm text-slate-600">
-                        <div>
-                            <dt class="font-semibold text-slate-900">Receipts issued</dt>
-                            <dd class="mt-1">{{ $receiptCount }}</dd>
-                        </div>
-                        <div>
-                            <dt class="font-semibold text-slate-900">Linked to invoices</dt>
-                            <dd class="mt-1">{{ $linkedReceiptCount }}</dd>
-                        </div>
-                        <div>
-                            <dt class="font-semibold text-slate-900">Standalone receipts</dt>
-                            <dd class="mt-1">{{ $receiptCount - $linkedReceiptCount }}</dd>
-                        </div>
-                        <div>
-                            <dt class="font-semibold text-slate-900">Total recorded value</dt>
-                            <dd class="mt-1">@ugx($moneyReceived)</dd>
-                        </div>
-                    </dl>
-                </div>
 
                 <div class="relative overflow-hidden border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
                     <span class="absolute inset-y-0 left-0 w-1.5 bg-teal-500"></span>
@@ -209,29 +166,13 @@
                             <span>Create a quotation</span>
                             <span class="text-slate-400">+</span>
                         </a>
-                        <a href="{{ route('quotations.index') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-orange-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-orange-600 hover:bg-slate-50">
-                            <span>Review quotations</span>
-                            <span class="text-slate-400">{{ $quotationCount }}</span>
-                        </a>
                         <a href="{{ route('invoices.create') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-sky-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-sky-600 hover:bg-slate-50">
                             <span>Create an invoice</span>
                             <span class="text-slate-400">+</span>
                         </a>
                         <a href="{{ route('receipts.create') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-fuchsia-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-fuchsia-600 hover:bg-slate-50">
-                            <span>Issue a receipt</span>
+                            <span>Create a receipt</span>
                             <span class="text-slate-400">+</span>
-                        </a>
-                        <a href="{{ route('invoices.index') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-amber-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-amber-600 hover:bg-slate-50">
-                            <span>Review open invoices</span>
-                            <span class="text-slate-400">{{ $activeInvoiceCount }}</span>
-                        </a>
-                        <a href="{{ route('invoices.settled') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-emerald-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-emerald-600 hover:bg-slate-50">
-                            <span>See settled invoices</span>
-                            <span class="text-slate-400">{{ $settledInvoiceCount }}</span>
-                        </a>
-                        <a href="{{ route('receipts.index') }}" class="flex items-center justify-between border border-slate-200 border-l-4 border-l-violet-500 px-4 py-4 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:border-l-violet-600 hover:bg-slate-50">
-                            <span>View receipts</span>
-                            <span class="text-slate-400">{{ $receiptCount }}</span>
                         </a>
                     </div>
                 </div>
